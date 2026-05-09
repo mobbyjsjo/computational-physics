@@ -3,35 +3,329 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>计算物理参考资料全书</title>
+  <title>计算物理参考资料全书（超详细版）</title>
   <style>
-    body { font-family: "Noto Sans CJK SC", "PingFang SC", "Microsoft YaHei", sans-serif; line-height: 1.6; max-width: 900px; margin: 40px auto; padding: 0 20px; }
+    body { font-family: "Noto Sans CJK SC", "PingFang SC", "Microsoft YaHei", sans-serif; line-height: 1.7; max-width: 980px; margin: 40px auto; padding: 0 20px; }
     h1, h2, h3, h4 { margin-top: 1.2em; }
     code, pre { background: #f6f8fa; padding: 2px 4px; border-radius: 4px; }
     pre { padding: 12px; overflow-x: auto; }
     table { border-collapse: collapse; width: 100%; margin: 12px 0; }
     th, td { border: 1px solid #ddd; padding: 8px; }
     th { background: #f2f2f2; }
+    blockquote { color: #555; border-left: 4px solid #ddd; padding-left: 12px; margin-left: 0; }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script>
-    window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] } };
+    window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$','$$']] } };
   </script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
 <body>
   <div id="content">正在加载文档…</div>
   <script>
-    const mdUrl = "https://raw.githubusercontent.com/mobbyjsjo/-/main/%E8%AE%A1%E7%AE%97%E7%89%A9%E7%90%86%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99%E5%85%A8%E4%B9%A6.md";
-    fetch(mdUrl)
-      .then(res => res.text())
-      .then(md => {
-        document.getElementById('content').innerHTML = marked.parse(md);
-        if (window.MathJax) { MathJax.typesetPromise(); }
-      })
-      .catch(() => {
-        document.getElementById('content').innerText = '加载失败，请检查网络或稍后重试。';
-      });
+    const md = `# 计算物理（开卷参考）五章详解＋例题答案（超详细版）
+
+> 目标：面向“刚开始学习、临时备考”的同学。每个概念都讲清楚“是什么、为什么、怎么用、考试怎么考”。
+
+---
+
+## 第一章 常微分方程（ODE）
+
+### 1.1 什么是 ODE（概念 + 物理直观）
+**ODE（常微分方程）**：只有一个自变量（通常是时间 $t$）的微分方程。
+
+**物理直观**：很多物理系统只随时间变化，例如：
+- 质点运动：$m\,\dfrac{d^2x}{dt^2} = F(x,t)$
+- 电路：$L\dfrac{di}{dt} + Ri = U(t)$
+- 放射性衰变：$\dfrac{dN}{dt} = -\lambda N$
+
+**初值问题（IVP）**：给定初始时刻 $t_0$ 的状态 $y(t_0)=y_0$，求 $t>t_0$ 的解。
+
+**边值问题（BVP）**：给定区间两端的值（比如 $y(a)$、$y(b)$），求整段解。
+
+> 考试常问：IVP 与 BVP 的区别？答：IVP 给起点，BVP 给两端。
+
+---
+
+### 1.2 高阶方程如何降阶（必须会）
+数值方法只能直接处理一阶方程，所以要把高阶方程变成一阶方程组。
+
+**示例**：
+$$\frac{d^2x}{dt^2}=f(x,t)$$
+令 $v=\frac{dx}{dt}$，则：
+$$
+\begin{cases}
+\frac{dx}{dt}=v \\
+\frac{dv}{dt}=f(x,t)
+\end{cases}
+$$
+
+**物理含义**：把“位置–加速度”问题变成“位置–速度”的一阶系统。
+
+> 考试题型：给二阶方程，要求写成一阶方程组。
+
+---
+
+### 1.3 欧拉法（最基础，必须手算）
+**思想**：在每个时间步，用“当前斜率”近似“下一步变化”。
+
+**公式**：
+$$y_{n+1} = y_n + h\,f(t_n,y_n)$$
+
+**误差**：
+- 局部截断误差 $O(h^2)$
+- 全局截断误差 $O(h)$（一阶法）
+
+**例题（一步手算）**：
+$y'=t+y,\ y(0)=1,\ h=0.1$，求 $y(0.1)$。
+- $f(0,1)=1$
+- $y_1=1+0.1\times1=1.1$
+
+**例题（两步）**：
+- $t_1=0.1, y_1=1.1$
+- $f(0.1,1.1)=1.2$
+- $y_2=1.1+0.1\times1.2=1.22$
+
+> 考试常考：手算 1~2 步欧拉法。
+
+---
+
+### 1.4 误差分析（讲清楚“步长为什么不是越小越好”）
+**两大误差来源**：
+1. **截断误差**：算法忽略高阶项造成，随 $h$ 减小而减小。
+2. **舍入误差**：计算机精度有限，步数越多累积越大，随 $h$ 减小反而增大。
+
+总误差近似：
+$$E(h) \approx c_1 h^p + c_2\frac{\epsilon}{h}$$
+
+**结论**：$h$ 过大截断误差大，$h$ 过小舍入误差大，存在最佳步长 $h_{opt}$。
+
+> 考试问：步长是不是越小越好？标准答法：不是，截断误差与舍入误差此消彼长。
+
+---
+
+### 1.5 显式 vs 隐式方法（刚性问题）
+**显式法**：下一步只用已知量计算，快但稳定性差。
+
+**隐式法**：下一步出现在等式两侧，需要解方程，但稳定性强。
+
+**刚性问题**：存在快慢多尺度过程，显式法易发散，必须用隐式法。
+
+> 送分题：刚性问题必须用隐式法（如后向欧拉）。
+
+---
+
+### 1.6 Runge–Kutta（RK2 / RK4）
+**RK2（改进欧拉）**：
+$$
+\begin{aligned}
+ k_1 &= f(t_n,y_n) \\
+ k_2 &= f(t_n+h, y_n+h k_1) \\
+ y_{n+1} &= y_n + \frac{h}{2}(k_1+k_2)
+\end{aligned}
+$$
+
+**RK4（最常用）**：
+$$
+\begin{aligned}
+ k_1 &= f(t_n,y_n) \\
+ k_2 &= f(t_n+h/2, y_n+h k_1/2) \\
+ k_3 &= f(t_n+h/2, y_n+h k_2/2) \\
+ k_4 &= f(t_n+h, y_n+h k_3) \\
+ y_{n+1} &= y_n + \frac{h}{6}(k_1+2k_2+2k_3+k_4)
+\end{aligned}
+$$
+
+> 考试：RK4 公式必须会默写。
+
+---
+
+## 第二章 偏微分方程（PDE）
+
+### 2.1 方程类型判定（必考判别式）
+标准形式：
+$$A u_{xx} + B u_{xy} + C u_{yy} + \cdots = 0$$
+判别式：$\Delta = B^2 - 4AC$
+
+- $\Delta>0$：双曲型（波动）
+- $\Delta=0$：抛物型（热传导/扩散）
+- $\Delta<0$：椭圆型（拉普拉斯/泊松）
+
+**例题**：$3u_{xx}+4u_{xy}+5u_{yy}=0$，$\Delta=16-60<0$，椭圆型。
+
+---
+
+### 2.2 差分公式（从“导数”变成“加减乘除”）
+**一阶中心差分**：
+$$\frac{\partial u}{\partial x} \approx \frac{u_{i+1}-u_{i-1}}{2\Delta x}$$
+
+**二阶中心差分**：
+$$\frac{\partial^2 u}{\partial x^2} \approx \frac{u_{i+1}-2u_i+u_{i-1}}{\Delta x^2}$$
+
+**记忆**：“左右相加减两倍自己，除以步长平方”。
+
+---
+
+### 2.3 热传导方程（抛物型）+ FTCS
+方程：
+$$\frac{\partial u}{\partial t}=\alpha\frac{\partial^2 u}{\partial x^2}$$
+
+FTCS 差分：
+$$u_i^{n+1} = u_i^n + r(u_{i+1}^n-2u_i^n+u_{i-1}^n)$$
+其中 $r=\dfrac{\alpha\Delta t}{\Delta x^2}$。
+
+**稳定性条件**：$r\le 1/2$。
+
+> 考试常问：若 $\Delta x$ 减半，$\Delta t$ 要变为原来的 $1/4$。
+
+---
+
+### 2.4 波动方程（双曲型）+ CFL
+$$\frac{\partial^2 u}{\partial t^2} = c^2\frac{\partial^2 u}{\partial x^2}$$
+
+稳定性（CFL）：
+$$C=\frac{c\Delta t}{\Delta x}\le 1$$
+
+**物理意义**：数值传播速度不能小于真实波速。
+
+---
+
+### 2.5 拉普拉斯/泊松（椭圆型）+ 五点差分
+二维拉普拉斯：
+$$\frac{\partial^2 u}{\partial x^2}+\frac{\partial^2 u}{\partial y^2}=0$$
+
+五点差分：
+$$u_{i,j} = \frac{1}{4}(u_{i+1,j}+u_{i-1,j}+u_{i,j+1}+u_{i,j-1})$$
+
+**物理意义**：任一点等于上下左右的平均值。
+
+---
+
+## 第三章 蒙特卡罗方法（MC）
+
+### 3.1 线性同余法（LCG）——“余数怎么取”
+公式：
+$$X_{n+1}=(aX_n+c)\bmod m$$
+
+**余数规则**：
+- $22 \bmod 8 = 6$
+- $5 \bmod 7 = 5$
+- $16 \bmod 8 = 0$
+
+**例题**：$a=5,c=7,m=8,X_0=3$。
+- $X_1=(5\cdot3+7)\bmod8=6$
+- $X_2=(5\cdot6+7)\bmod8=5$
+- $X_3=(5\cdot5+7)\bmod8=0$
+
+**转成 0~1**：$R_n=X_n/m$。
+
+---
+
+### 3.2 逆变换采样（一步一步）
+**目标**：用均匀随机数 $r$ 生成目标分布变量 $x$。
+
+步骤：
+1) 计算 $C(x)=\int p(x)dx$
+2) 令 $C(x)=r$
+3) 解出 $x$
+
+**例题**：$p(x)=2e^{-2x}$。
+- $C(x)=1-e^{-2x}$
+- $1-e^{-2x}=r$
+- $x=-\frac{1}{2}\ln(1-r)$
+
+---
+
+### 3.3 MC 积分（均值法）
+$$I \approx (b-a)\frac{1}{N}\sum_{i=1}^N f(x_i)$$
+
+**误差规律**：$O(1/\sqrt{N})$，与维数无关。
+
+---
+
+### 3.4 Metropolis（MCMC 核心）
+- $\Delta E<0$：必接受
+- $\Delta E>0$：以 $e^{-\Delta E/kT}$ 概率接受
+
+**例题**：$\Delta E=2, T=2$，$P=e^{-1}=0.368$。
+若随机数 $r=0.4$，则拒绝。
+
+---
+
+## 第四章 机器学习基础
+
+### 4.1 监督 vs 无监督（讲清楚）
+- 监督学习：有标签，学映射 $y=f(x)$，任务是分类/回归。
+- 无监督学习：无标签，找结构，任务是聚类/降维。
+
+**训练/验证/测试集**：
+- 训练：学参数
+- 验证：调超参数
+- 测试：最终评估
+
+---
+
+### 4.2 过拟合与欠拟合
+- 欠拟合：模型太简单，训练集都学不好。
+- 过拟合：模型太复杂，训练集很好但测试集差。
+
+**缓解方法**：正则化、Dropout、增大数据、早停。
+
+---
+
+### 4.3 梯度下降（手算模板）
+$$w_{new} = w_{old} - \eta\frac{\partial L}{\partial w}$$
+
+例题：$y=wx, x=2, y_{true}=5, w=2, \eta=0.1$。
+- $y_{pred}=4$
+- $\frac{\partial L}{\partial w}=(4-5)\cdot2=-2$
+- $w_{new}=2-0.1(-2)=2.2$
+
+---
+
+### 4.4 常见模型
+- **SVM**：最大间隔超平面，支持向量决定边界。
+- **决策树**：基尼系数 $Gini=1-\sum p_i^2$。
+- **K-means**：分配 → 更新质心。
+- **PCA**：找最大方差方向降维。
+
+---
+
+## 第五章 并行与工程实现
+
+### 5.1 阿姆达尔定律
+$$Speedup=\frac{1}{(1-P)+P/N}$$
+
+例题：$P=0.8, N=4$，$Speedup=2.5$。
+
+---
+
+### 5.2 OpenMP vs MPI（记忆版）
+- OpenMP：共享内存，多线程，易并行，易竞争。
+- MPI：分布式内存，多进程，通信成本高，适合集群。
+
+---
+
+### 5.3 数据竞争（Data Race）
+多个线程同时写同一个变量会出错。
+
+解决：加锁（critical）、原子操作、规约（reduction）。
+
+---
+
+### 5.4 GPU 与 SIMD
+- GPU：大量简单核心，适合矩阵/图像并行。
+- SIMD：单指令多数据，向量化加速。
+
+---
+
+# 使用说明
+- 这是**超详细版**，可以直接用作开卷考试资料。
+- 建议用浏览器打开后打印为 PDF。
+`;
+
+    document.getElementById('content').innerHTML = marked.parse(md);
+    if (window.MathJax) { MathJax.typesetPromise(); }
   </script>
 </body>
 </html>
