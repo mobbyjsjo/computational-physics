@@ -9,14 +9,11 @@
                 inlineMath: [['$', '$'], ['\\(', '\\)']],
                 displayMath: [['$$', '$$'], ['\\[', '\\]']]
             },
-            svg: {
-                fontCache: 'global'
-            }
+            svg: { fontCache: 'global' }
         };
     </script>
     <script type="text/javascript" id="MathJax-script" async
-        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
-    </script>
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", "Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif;
@@ -60,6 +57,18 @@
             padding: 10px 15px;
             margin: 12px 0;
         }
+        .example {
+            background: #f0fff4;
+            border-left: 4px solid #2ecc71;
+            padding: 10px 15px;
+            margin: 12px 0;
+        }
+        pre {
+            background: #f6f8fa;
+            padding: 12px;
+            border-radius: 6px;
+            overflow-x: auto;
+        }
     </style>
 </head>
 <body>
@@ -90,6 +99,11 @@
     <p>
         典型流程：数据准备 → 特征工程 → 模型训练 → 评估 → 部署/应用。
     </p>
+    <div class="example">
+        <strong>考点例题 1（概念辨析）：</strong>
+        已知“星系图像”与“星系类型标签”，问题属于哪类学习？
+        <br>答案：监督学习，因为有明确标签，需要预测类别。
+    </div>
 
     <h2>4.2 泛化问题</h2>
     <p>
@@ -98,7 +112,7 @@
     <div class="concept">
         <strong>过拟合与欠拟合：</strong>
         <ul>
-            <li><strong>过拟合</strong>：训练集��现好，但测试集表现差，说明模型学到了噪声。</li>
+            <li><strong>过拟合</strong>：训练集表现好，但测试集表现差，说明模型学到了噪声。</li>
             <li><strong>欠拟合</strong>：训练集和测试集都差，说明模型太简单，无法刻画规律。</li>
         </ul>
     </div>
@@ -111,6 +125,11 @@
     </ul>
     <div class="note">
         物理与天文学中常见的泛化失败：模型仅适用于某台仪器的数据，换一台仪器就失效。
+    </div>
+    <div class="example">
+        <strong>考点例题 2（判断题）：</strong>
+        “增加模型复杂度一定能提高测试集准确率。”
+        <br>答案：错误。复杂度过高会过拟合，测试集准确率可能下降。
     </div>
 
     <h2>4.3 线性模型</h2>
@@ -130,6 +149,11 @@
         $$
         其中 $\lambda$ 是正则化系数，用于限制参数过大。
     </p>
+    <div class="example">
+        <strong>考点例题 3（计算题）：</strong>
+        给定一维数据点 $(x,y)=\{(1,2),(2,3)\}$，若模型 $\hat{y}=wx$，最小二乘解为 $w=?$
+        <br>解：最小化 $\sum (y-wx)^2$，$w=(1\cdot2+2\cdot3)/(1^2+2^2)=8/5=1.6$。
+    </div>
 
     <h2>4.4 支持向量机 (SVM)</h2>
     <p>
@@ -150,6 +174,11 @@
         $$
         在天文分类（如恒星/星系）中，SVM 常用于中小数据集。
     </p>
+    <div class="example">
+        <strong>考点例题 4（概念题）：</strong>
+        如果数据线性可分，SVM 是否需要核函数？
+        <br>答案：不需要，线性核或直接线性 SVM 即可。
+    </div>
 
     <h2>4.5 决策树</h2>
     <p>
@@ -164,6 +193,11 @@
         </ul>
     </div>
     <p>决策树可解释性强，但容易过拟合，因此常用于集成模型中。</p>
+    <div class="example">
+        <strong>考点例题 5（判断题）：</strong>
+        决策树深度越大越好。
+        <br>答案：错误。过深会过拟合。
+    </div>
 
     <h2>4.6 集成算法</h2>
     <p>
@@ -171,10 +205,15 @@
     </p>
     <ul>
         <li><strong>随机森林</strong>：多棵决策树投票，降低单棵树的过拟合风险。</li>
-        <li><strong>梯度提升树</strong>：每一棵树拟合上一轮的残差，逐步提升精度。</li>
+        <li><strong>梯度提升树</strong>：每一棵树拟合上一轮的残差，���步提升精度。</li>
     </ul>
     <div class="note">
         在天体分类、光变曲线预测中，随机森林与 XGBoost 表现稳定且易用。
+    </div>
+    <div class="example">
+        <strong>考点例题 6（简答题）：</strong>
+        随机森林与单棵决策树相比的优势是什么？
+        <br>答：随机森林通过多棵树投票降低过拟合，鲁棒性更好。
     </div>
 
     <h2>4.7 人工神经网络</h2>
@@ -200,6 +239,11 @@
     <p>
         深层网络会带来过拟合或梯度消失问题，因此需要 Dropout、BatchNorm 等技巧提升稳定性。
     </p>
+    <div class="example">
+        <strong>考点例题 7（概念题）：</strong>
+        为什么需要激活函数？
+        <br>答案：引入非线性，否则多层网络等价于线性模型。
+    </div>
 
     <h2>4.8 回归算法</h2>
     <p>
@@ -210,6 +254,11 @@
         <li><strong>岭回归 / Lasso</strong>：加入正则项，防止过拟合。</li>
         <li><strong>高斯过程回归</strong>：把函数看成随机过程，适合不确定性建模。</li>
     </ul>
+    <div class="example">
+        <strong>考点例题 8（简答题）：</strong>
+        Lasso 与岭回归的主要区别？
+        <br>答：Lasso 使用 $\ell_1$ 正则，可产生稀疏解；岭回归使用 $\ell_2$ 正则。
+    </div>
 
     <h2>4.9 聚类算法</h2>
     <p>
@@ -223,6 +272,11 @@
         <li><strong>层次聚类</strong>：构建树状结构，适合探索数据层级关系。</li>
         <li><strong>DBSCAN</strong>：基于密度，能发现任意形状的簇并识别噪声。</li>
     </ul>
+    <div class="example">
+        <strong>考点例题 9（判断题）：</strong>
+        K-means 能很好处理任意形状的簇。
+        <br>答案：错误。K-means 假设簇近似球形。
+    </div>
 
     <h2>4.10 降维算法</h2>
     <p>
@@ -235,6 +289,11 @@
         <li><strong>PCA</strong>：通过最大化方差方向来保留主要信息。</li>
         <li><strong>t-SNE / UMAP</strong>：非线性可视化方法，常用于展示天体谱线分布。</li>
     </ul>
+    <div class="example">
+        <strong>考点例题 10（概念题）：</strong>
+        PCA 选择主成分的依据是什么？
+        <br>答案：选择方差最大的方向（最大化投影方差）。
+    </div>
 
     <h2>4.11 卷积神经网络 (CNN)</h2>
     <p>
@@ -251,6 +310,11 @@
     <p>
         天文学中的典型应用：星系形态分类、引力透镜识别、天文图像去噪等。
     </p>
+    <div class="example">
+        <strong>考点例题 11（简答题）：</strong>
+        为什么 CNN 在图像任务中比全连接网络更有效？
+        <br>答：CNN 使用局部连接与权重共享，参数更少且能捕捉局部纹理特征。
+    </div>
 
     <hr>
     <p><strong>总结</strong>：机器学习的关键在于“用数据逼近规律”。在物理与天文学中，数据通常噪声大、维度高、分布复杂，因此更需要理解算法的原理和局限。掌握本章概念后，你就能更清晰地选择合适的模型与方法。</p>
