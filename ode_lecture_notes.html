@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>常微分方程入门讲义</title>
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+    </script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", "Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif;
+            line-height: 1.8;
+            margin: 20px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+            border-bottom: 1px solid #bdc3c7;
+            padding-bottom: 10px;
+        }
+        .container {
+            background: white;
+            padding: 20px 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        code {
+            background: #ecf0f1;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>第一章 常微分方程 (Ordinary Differential Equations)</h1>
+
+    <p>你好！这份讲义是为你准备的常微分方程入门学习材料。内容从零开始，旨在帮助你快速掌握核心概念和基本数值解法。让我们开始吧！</p>
+
+    <h2>1.1 常微分方程简介</h2>
+    <p>
+        <strong>什么是常微分方程 (ODE)？</strong><br>
+        简单来说，常微分方程是描述一个未知函数与其自变量的导数之间关系的方程。这里的“常”指的是方程中只有一个自变量（通常是时间 $t$ 或空间 $x$）。
+    </p>
+    <p>
+        最经典的形式是<strong>初值问题 (Initial Value Problem, IVP)</strong>，它包含一个微分方程和一个初始条件：
+        $$
+        \frac{dy}{dt} = f(t, y), \quad y(t_0) = y_0
+        $$
+        我们的目标是找到一个函数 $y(t)$，它满足这个方程和给定的初始值。
+    </p>
+    <p>
+        <strong>为什么它很重要？</strong><br>
+        物理学中的运动、化学中的反应速率、生物学中的种群增长、经济学中的模型等等，都可以用常微分方程来描述。然而，很多微分方程无法得到精确的解析解（一个漂亮的函数表达式），这时候我们就需要借助计算机，使用数值方法来近似求解。
+    </p>
+
+    <h2>1.2 欧拉法与误差分析</h2>
+    <h3>欧拉法 (Euler's Method)</h3>
+    <p>
+        欧拉法是最简单、最直观的数值解法。它的核心思想是用当前点的切线来近似下一小步的函数值。
+    </p>
+    <p>
+        假设我们把时间轴分成很多小段，每段的长度（步长）为 $h$。在 $t_n$ 时刻，我们已经知道了 $y_n \approx y(t_n)$。如何求解 $t_{n+1} = t_n + h$ 时刻的 $y_{n+1}$ 呢？
+    </p>
+    <p>
+        根据导数的定义 $\frac{dy}{dt} \approx \frac{y(t+h) - y(t)}{h}$，我们可以推导出：
+        $$
+        y_{n+1} = y_n + h \cdot f(t_n, y_n)
+        $$
+        这就是<strong>欧拉法的迭代公式</strong>。从初始点 $(t_0, y_0)$ 开始，我们可以一步一步地计算出后续所有点的近似值。
+    </p>
+    <h3>误差分析 (Error Analysis)</h3>
+    <p>
+        欧拉法虽然简单，但精度不高。误差主要有两种：
+        <ul>
+            <li><strong>局部截断误差 (Local Truncation Error)</strong>: 在单步计算中产生的误差。对于欧拉法，它与步长的平方 ($h^2$) 成正比，记为 $O(h^2)$。</li>
+            <li><strong>全局截断误差 (Global Truncation Error)</strong>: 从开始到最终时刻累积的总误差。对于欧拉法，它与步长 ($h$) 成正比，记为 $O(h)$。这意味着如果步长 $h$ 减半，全局误差也大约减半。</li>
+        </ul>
+    </p>
+
+    <h2>1.3 显式与隐式方法</h2>
+    <h3>显式方法 (Explicit Methods)</h3>
+    <p>
+        像欧拉法这样，可以直接用已知时刻 $t_n$ 的信息 ($y_n$) 来计算下一时刻 $t_{n+1}$ 的值 ($y_{n+1}$) 的方法，就是显式方法。
+        $$
+        y_{n+1} = y_n + \text{一些只依赖于 } (t_n, y_n) \text{ 的项}
+        $$
+        这类方法计算简单、直接。
+    </p>
+    <h3>隐式方法 (Implicit Methods)</h3>
+    <p>
+        隐式方法在计算 $y_{n+1}$ 时，方程的右边也包含了 $y_{n+1}$ 本身。最简单的例子是<strong>隐式欧拉法</strong>：
+        $$
+        y_{n+1} = y_n + h \cdot f(t_{n+1}, y_{n+1})
+        $$
+        你会发现 $y_{n+1}$ 同时出现在等号两边。这意味着每一步都需要求解一个（可能很复杂的）代数方程才能得到 $y_{n+1}$。
+    </p>
+    <p>
+        <strong>为什么要用更复杂的隐式方法？</strong><br>
+        对于某些“刚性”(Stiff)问题（即系统中不同部分变化速率差异巨大），显式方法为了保持稳定，需要非常非常小的步长 $h$，导致计算量巨大。而隐式方法通常具有更好的稳定性，可以用更大的步长进行计算，反而更高效。
+    </p>
+
+    <h2>1.4 多步法 - 亚当斯方法</h2>
+    <p>
+        前面的方法都属于<strong>单步法</strong>，即计算 $y_{n+1}$ 只用到了 $t_n$ 时刻的信息。但我们已经算出了 $(t_n, y_n), (t_{n-1}, y_{n-1}), \dots$，能不能利用这些历史信息来提高精度呢？当然可以！这就是<strong>多步法</strong>的思想。
+    </p>
+    <h3>亚当斯方法 (Adams Methods)</h3>
+    <p>
+        亚当斯方法是一类常见的多步法。它也分为显式和隐式两种。
+        <ul>
+            <li>
+                <strong>显式亚当斯法 (Adams-Bashforth)</strong>: 用前面几个点 $(t_n, t_{n-1}, \dots)$ 的斜率值来构造一个多项式，外插得到 $t_{n+1}$ 的值。例如，两步 Adams-Bashforth 方法的公式为：
+                $$
+                y_{n+1} = y_n + \frac{h}{2} [3f(t_n, y_n) - f(t_{n-1}, y_{n-1})]
+                $$
+            </li>
+            <li>
+                <strong>隐式亚当斯法 (Adams-Moulton)</strong>: 同样利用历史信息，但构造的方程中包含 $f(t_{n+1}, y_{n+1})$，需要求解。例如，两步 Adams-Moulton 方法的公式为：
+                $$
+                y_{n+1} = y_n + \frac{h}{2} [f(t_{n+1}, y_{n+1}) + f(t_n, y_n)]
+                $$
+                这其实就是梯形法则。
+            </li>
+        </ul>
+        实际应用中，经常将两者结合，形成<strong>预测-校正 (Predictor-Corrector)</strong> 模式：先用显式法（如Adams-Bashforth）快速得到一个 $y_{n+1}$ 的预测值，然后用这个预测值代入隐式法（如Adams-Moulton）的右侧，进行一次或多次迭代校正，得到更精确的结果。
+    </p>
+
+    <h2>1.5 龙格-库塔法 (Runge-Kutta Methods)</h2>
+    <p>
+        龙格-库塔法是另一类非常重要且广泛使用的高精度单步法。它不像多步法那样需要存储历史信息，而是通过在当前步内“试探性”地计算多个中间点的斜率，然后将它们加权平均，来得到一个更精确的步进。
+    </p>
+    <p>
+        最著名的就是<strong>经典四阶龙格-库塔法 (RK4)</strong>。它的迭代步骤如下：
+        $$
+        \begin{aligned}
+            k_1 &= f(t_n, y_n) \\
+            k_2 &= f(t_n + \frac{h}{2}, y_n + \frac{h}{2}k_1) \\
+            k_3 &= f(t_n + \frac{h}{2}, y_n + \frac{h}{2}k_2) \\
+            k_4 &= f(t_n + h, y_n + hk_3) \\
+            y_{n+1} &= y_n + \frac{h}{6}(k_1 + 2k_2 + 2k_3 + k_4)
+        \end{aligned}
+        $$
+        <strong>如何理解？</strong>
+        <ul>
+            <li>$k_1$: 起点的斜率（欧拉法用的就是这个）。</li>
+            <li>$k_2$: 用 $k_1$ 预估半步后，在时间中点 $t_n + h/2$ 处的斜率。</li>
+            <li>$k_3$: 用 $k_2$ 再次预估半步后，在时间中点处的斜率（更准的半步预估）。</li>
+            <li>$k_4$: 用 $k_3$ 预估一整步后，在终点 $t_n + h$ 处的斜率。</li>
+        </ul>
+        最后，将这四个斜率进行加权平均。这个公式的构造非常巧妙，通过泰勒展开可以证明，它的全局截断误差是 $O(h^4)$，精度非常高。在步长相同的情况下，RK4 方法通常比欧拉法精确得多。
+    </p>
+    <hr>
+    <p><strong>总结</strong>：我们学习了常微分方程数值求解的几种核心方法。欧拉法最简单，适合理解概念；龙格-库塔法是工业界和学术界常用的高精度单步法；亚当斯等多步法利用历史信息提高效率；而显式与隐式的选择则取决于问题的“刚性”。希望这份讲义能帮助你打下坚实的基础！祝你考试顺利！</p>
+</div>
+</body>
+</html>
