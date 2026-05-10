@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>蒙特卡罗算法入门讲义</title>
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+    </script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", "Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif;
+            line-height: 1.8;
+            margin: 20px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+            border-bottom: 1px solid #bdc3c7;
+            padding-bottom: 10px;
+        }
+        .container {
+            background: white;
+            padding: 20px 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        code {
+            background: #ecf0f1;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+        ul {
+            padding-left: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>第三章 蒙特卡罗算法 (Monte Carlo Methods)</h1>
+    <p>欢迎来到第三章！蒙特卡罗算法是一类利用“随机抽样”来解决复杂问题的数值方法。它们特别适合处理高维积分、概率估计和不确定性分析，是科学计算中的重要工具。</p>
+
+    <h2>3.1 蒙特卡罗算法概述</h2>
+    <p>
+        <strong>核心思想</strong>：用随机样本来估计一个量的期望值或概率。假设我们想计算某个期望值：
+        $$
+        I = \mathbb{E}[g(X)] = \int g(x) p(x) \, dx
+        $$
+        其中 $p(x)$ 是随机变量 $X$ 的概率密度。蒙特卡罗方法的做法是：
+        <ol>
+            <li>从分布 $p(x)$ 中生成大量随机样本 $x_1, x_2, \dots, x_N$。</li>
+            <li>用样本平均值近似期望：
+                $$
+                \hat{I} = \frac{1}{N} \sum_{i=1}^N g(x_i)
+                $$
+            </li>
+        </ol>
+    </p>
+    <p>
+        根据大数定律，随着样本数量 $N$ 增加，估计值 $\hat{I}$ 会收敛到真实值 $I$。误差大约是 $O(1/\sqrt{N})$，这是蒙特卡罗方法的一个重要特性：<strong>精度提升需要样本数量的平方级增长</strong>。
+    </p>
+
+    <h2>3.2 随机数生成与概率</h2>
+    <h3>均匀随机数</h3>
+    <p>
+        大多数编程语言提供的随机数生成器，会产生区间 $[0,1)$ 上的均匀分布随机数 $U \sim \mathcal{U}(0,1)$。
+    </p>
+    <h3>从均匀分布到任意分布</h3>
+    <p>
+        要生成其他分布的随机数，我们常用以下方法：
+        <ul>
+            <li><strong>逆变换法</strong>：若 $F(x)$ 是目标分布的累积分布函数 (CDF)，则 $X = F^{-1}(U)$ 服从该分布。</li>
+            <li><strong>接受-拒绝法</strong>：用一个容易采样的分布来“包住”目标分布，通过随机筛选得到目标分布样本。</li>
+            <li><strong>Box-Muller 方法</strong>：将两个均匀随机数转化为两个独立的正态分布随机数。</li>
+        </ul>
+    </p>
+    <p>
+        理解随机数生成是蒙特卡罗算法的基础，因为所有抽样过程都依赖于它。
+    </p>
+
+    <h2>3.3 蒙特卡洛积分和采样</h2>
+    <p>
+        蒙特卡罗积分是最经典的应用之一。假设我们要计算定积分：
+        $$
+        I = \int_a^b f(x) \, dx
+        $$
+        可以将它改写为期望形式：
+        $$
+        I = (b-a) \mathbb{E}[f(U)], \quad U \sim \mathcal{U}(a,b)
+        $$
+        然后用 $N$ 个随机样本近似：
+        $$
+        \hat{I} = \frac{b-a}{N} \sum_{i=1}^N f(u_i)
+        $$
+    </p>
+    <p>
+        <strong>几何理解</strong>：我们可以用“扔点法”估计圆周率 $\pi$。在单位正方形内随机撒点，落在四分之一圆内的点的比例近似 $\pi/4$。
+        $$
+        \pi \approx 4 \cdot \frac{\text{圆内点数}}{\text{总点数}}
+        $$
+    </p>
+    <p>
+        在高维积分中，传统数值方法复杂度会迅速爆炸（“维度灾难”），而蒙特卡罗方法的误差与维度无关，因此特别有优势。
+    </p>
+
+    <h2>3.4 蒙特卡罗模拟和马科夫链</h2>
+    <p>
+        在很多问题中，我们无法直接从目标分布采样。这时可以使用 <strong>马科夫链蒙特卡罗 (MCMC)</strong> 方法，通过构造一个具有目标分布为平稳分布的马科夫链，来生成样本。
+    </p>
+    <h3>马科夫链基本概念</h3>
+    <p>
+        马科夫链是一种随机过程，满足：
+        $$
+        P(X_{n+1} | X_n, X_{n-1}, \dots, X_0) = P(X_{n+1} | X_n)
+        $$
+        即“未来只与现在有关，与过去无关”。
+    </p>
+    <h3>典型 MCMC 算法</h3>
+    <ul>
+        <li><strong>Metropolis-Hastings 算法</strong>：通过接受-拒绝步骤，使马科夫链收敛到目标分布。</li>
+        <li><strong>Gibbs 采样</strong>：对高维分布中的每个变量逐个条件采样，常用于贝叶斯推断。</li>
+    </ul>
+    <p>
+        MCMC 广泛应用于统计推断、机器学习和物理模拟。
+    </p>
+
+    <h2>3.5 物理中的实际应用</h2>
+    <p>
+        蒙特卡罗算法在物理学中有极其广泛的应用，特别是在统计物理和粒子模拟中。
+    </p>
+    <ul>
+        <li><strong>伊辛模型 (Ising Model)</strong>：用 MCMC 模拟磁性材料中自旋的排列，研究相变现象。</li>
+        <li><strong>粒子输运</strong>：模拟中子或光子在介质中的随机散射，用于核反应堆设计和医学成像。</li>
+        <li><strong>分子动力学</strong>：结合随机采样来估计复杂分子体系的能量分布。</li>
+    </ul>
+    <p>
+        这些应用的共同点是：系统过于复杂，无法用解析方法求解，只能通过随机模拟逼近结果。
+    </p>
+
+    <hr>
+    <p><strong>总结</strong>：蒙特卡罗算法利用随机性解决确定性问题，是数值计算中的“万能工具箱”。它的优点是实现简单、维度无关；缺点是收敛速度较慢。掌握随机数生成、积分估计和 MCMC 基本思想，将为你理解更复杂的概率模型和物理系统打下基础。</p>
+</div>
+</body>
+</html>
