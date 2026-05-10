@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>偏微分方程入门讲义</title>
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+    </script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", "Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif;
+            line-height: 1.8;
+            margin: 20px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+            border-bottom: 1px solid #bdc3c7;
+            padding-bottom: 10px;
+        }
+        .container {
+            background: white;
+            padding: 20px 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        code {
+            background: #ecf0f1;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>第二章 偏微分方程 (Partial Differential Equations)</h1>
+    <p>欢迎来到第二章的学习！偏微分方程 (PDE) 是描述多变量函数及其偏导数之间关系的方程。它在物理、工程和金融等领域无处不在。本讲义将带你入门 PDE 的分类和基本数值解法。</p>
+
+    <h2>2.1 偏微分方程分类</h2>
+    <p>
+        与只有一个自变量的常微分方程 (ODE) 不同，偏微分方程涉及两个或多个自变量（如时间和空间）。一个二阶线性 PDE 的通用形式如下：
+        $$
+        A \frac{\partial^2 u}{\partial x^2} + B \frac{\partial^2 u}{\partial x \partial y} + C \frac{\partial^2 u}{\partial y^2} + D \frac{\partial u}{\partial x} + E \frac{\partial u}{\partial y} + Fu = G
+        $$
+        我们根据判别式 $\Delta = B^2 - 4AC$ 的值，将它们分为三类：
+    </p>
+    <ul>
+        <li><strong>抛物线型 (Parabolic)</strong>: 当 $\Delta = 0$ 时。
+            <ul>
+                <li><strong>典型方程</strong>: 热传导方程 (Heat Equation) $\frac{\partial u}{\partial t} = \alpha \frac{\partial^2 u}{\partial x^2}$。</li>
+                <li><strong>物理意义</strong>: 描述扩散、传导等随时间演化且趋于平滑稳定的过程。它有时间方向性，是一个初值/边值问题。</li>
+            </ul>
+        </li>
+        <li><strong>双曲型 (Hyperbolic)</strong>: 当 $\Delta > 0$ 时。
+            <ul>
+                <li><strong>典型方程</strong>: 波动方程 (Wave Equation) $\frac{\partial^2 u}{\partial t^2} = c^2 \frac{\partial^2 u}{\partial x^2}$。</li>
+                <li><strong>物理意义</strong>: 描述振动和波的传播，如声波、光波。信息会沿着特定的特征线传播，能量守恒。</li>
+            </ul>
+        </li>
+        <li><strong>椭圆型 (Elliptic)</strong>: 当 $\Delta < 0$ 时。
+            <ul>
+                <li><strong>典型方程</strong>: 拉普拉斯方程 (Laplace's Equation) $\frac{\partial^2 u}{\partial x^2} + \frac{\partial^2 u}{\partial y^2} = 0$。</li>
+                <li><strong>物理意义</strong>: 描述处于稳态（不随时间变化）的系统，如稳定温度分布、静电场分布。解的性质由整个区域的边界决定，是一个边值问题。</li>
+            </ul>
+        </li>
+    </ul>
+    <p>这个分类至关重要，因为不同类型的方程需要不同的数值方法来求解。</p>
+
+    <h2>2.2 差分法简介 (Finite Difference Method)</h2>
+    <p>
+        差分法是求解 PDE 最基础的数值方法。核心思想是<strong>将连续的求解域离散化为网格点</strong>，然后用<strong>差商近似代替导数</strong>。
+    </p>
+    <p>
+        假设我们在 $x$ 方向的步长为 $\Delta x$，在 $t$ 方向的步长为 $\Delta t$。一个点的位置可以表示为 $(x_i, t_j)$，该点的函数值为 $u(x_i, t_j) \approx u_i^j$。
+    </p>
+    <p>导数的近似：</p>
+    <ul>
+        <li><strong>一阶向前差分 (Forward Difference)</strong>:
+            $$ \frac{\partial u}{\partial x} \approx \frac{u_{i+1}^j - u_i^j}{\Delta x} $$
+        </li>
+        <li><strong>一阶向后差分 (Backward Difference)</strong>:
+            $$ \frac{\partial u}{\partial x} \approx \frac{u_i^j - u_{i-1}^j}{\Delta x} $$
+        </li>
+        <li><strong>二阶中心差分 (Central Difference)</strong>: (精度更高)
+            $$ \frac{\partial^2 u}{\partial x^2} \approx \frac{u_{i+1}^j - 2u_i^j + u_{i-1}^j}{(\Delta x)^2} $$
+        </li>
+    </ul>
+    <p>通过将 PDE 中的所有偏导数替换为差分格式，我们就把一个复杂的微分方程转化成了一组可以在计算机上求解的线性代数方程组。</p>
+
+    <h2>2.3 抛物线型二阶偏微分方程求解</h2>
+    <p>以热传导方程 $\frac{\partial u}{\partial t} = \alpha \frac{\partial^2 u}{\partial x^2}$ 为例。</p>
+    <p>
+        我们对时间导数用向前差分，对空间导数用中心差分：
+        $$
+        \frac{u_i^{j+1} - u_i^j}{\Delta t} = \alpha \frac{u_{i+1}^j - 2u_i^j + u_{i-1}^j}{(\Delta x)^2}
+        $$
+        整理后，我们可以得到一个<strong>显式格式 (Explicit Scheme)</strong>，用于计算下一时刻 ($j+1$) 的温度分布：
+        $$
+        u_i^{j+1} = u_i^j + r (u_{i+1}^j - 2u_i^j + u_{i-1}^j)
+        $$
+        其中 $r = \frac{\alpha \Delta t}{(\Delta x)^2}$。
+    </p>
+    <p>
+        <strong>注意</strong>：这个显式格式是<strong>有条件稳定</strong>的，只有当 $r \le 1/2$ 时计算结果才不会发散。这意味着时间步长 $\Delta t$ 的取值受到了空间步长 $\Delta x$ 的严格限制。为了克服这个问题，可以使用更稳定的<strong>隐式格式</strong>（如 Crank-Nicolson 方法），但计算会更复杂。
+    </p>
+    
+    <h2>2.4 双曲型二阶偏微分方程求解</h2>
+    <p>以波动方程 $\frac{\partial^2 u}{\partial t^2} = c^2 \frac{\partial^2 u}{\partial x^2}$ 为例。</p>
+    <p>
+        我们对时间和空间都采用二阶中心差分：
+        $$
+        \frac{u_i^{j+1} - 2u_i^j + u_i^{j-1}}{(\Delta t)^2} = c^2 \frac{u_{i+1}^j - 2u_i^j + u_{i-1}^j}{(\Delta x)^2}
+        $$
+        整理后，我们得到一个显式的递推关系：
+        $$
+        u_i^{j+1} = 2(1 - \lambda^2) u_i^j + \lambda^2(u_{i+1}^j + u_{i-1}^j) - u_i^{j-1}
+        $$
+        其中 $\lambda = \frac{c \Delta t}{\Delta x}$。这个格式同样是有条件稳定的，需要满足 <strong>Courant-Friedrichs-Lewy (CFL)</strong> 条件 $\lambda \le 1$。这个条件意味着在一个时间步内，波的传播距离不能超过一个空间步长。
+    </p>
+    
+    <h2>2.5 椭圆型二阶偏微分方程求解</h2>
+    <p>以拉普拉斯方程 $\frac{\partial^2 u}{\partial x^2} + \frac{\partial^2 u}{\partial y^2} = 0$ 为例。</p>
+    <p>
+        这是一个稳态问题，没有时间维度。我们在一个二维网格上进行离散，对两个空间导数都使用中心差分：
+        $$
+        \frac{u_{i+1, j} - 2u_{i, j} + u_{i-1, j}}{(\Delta x)^2} + \frac{u_{i, j+1} - 2u_{i, j} + u_{i, j-1}}{(\Delta y)^2} = 0
+        $$
+        如果取 $\Delta x = \Delta y$，方程可以简化为：
+        $$
+        u_{i, j} = \frac{1}{4} (u_{i+1, j} + u_{i-1, j} + u_{i, j+1} + u_{i, j-1})
+        $$
+        这个公式非常直观：<strong>网格上任意一点的值，等于其周围四个邻居点的平均值</strong>。
+    </p>
+    <p>
+        对于整个求解域，这会形成一个大型线性方程组 $AU=b$。求解这个方程组的常用方法有：
+        <ul>
+            <li><strong>雅可比迭代 (Jacobi Iteration)</strong>: 用上一轮的旧值计算所有点的新值。</li>
+            <li><strong>高斯-赛德尔迭代 (Gauss-Seidel Iteration)</strong>: 在计算一个点的新值时，立即使用本轮已经算出的新邻居点的值，收敛更快。</li>
+            <li><strong>逐次超松弛迭代 (SOR)</strong>: 在高斯-赛德尔的基础上引入一个松弛因子，可以进一步加速收敛。</li>
+        </ul>
+    </p>
+    <hr>
+    <p><strong>总结</strong>：偏微分方程的数值求解核心在于“离散化”。我们将连续的方程转化为离散的代数方程组。不同的方程类型（抛物、双曲、椭圆）对应着不同的物理背景和求解策略，尤其是对稳定性的要求不同。掌握这些基础，你就迈出了数值求解 PDE 的重要一步！</p>
+</div>
+</body>
+</html>
