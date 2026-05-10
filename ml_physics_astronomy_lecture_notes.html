@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>面向物理与天文学的机器学习入门讲义</title>
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+    </script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", "Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif;
+            line-height: 1.8;
+            margin: 20px;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+            border-bottom: 1px solid #bdc3c7;
+            padding-bottom: 10px;
+        }
+        .container {
+            background: white;
+            padding: 20px 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        code {
+            background: #ecf0f1;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+        ul {
+            padding-left: 20px;
+        }
+        .note {
+            background: #f3f8ff;
+            border-left: 4px solid #4a90e2;
+            padding: 10px 15px;
+            margin: 12px 0;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>第四章 面向物理与天文学的机器学习入门</h1>
+    <p>这一章将用“物理+天文学”应用视角，带你快速理解机器学习的核心概念与主流算法。我们不假设你有很深的基础，会尽量从直觉出发，用简单例子说明。</p>
+
+    <h2>4.1 机器学习概论</h2>
+    <p>
+        机器学习的目标是让模型从数据中学习规律，用于预测或发现结构。基本任务类型：
+    </p>
+    <ul>
+        <li><strong>监督学习</strong>：有标签（如恒星光谱 → 恒星类型）。</li>
+        <li><strong>无监督学习</strong>：无标签（如用聚类发现星系种类）。</li>
+        <li><strong>强化学习</strong>：基于奖励进行决策（如自动望远镜调度）。</li>
+    </ul>
+    <p>
+        典型流程：数据准备 → 特征工程 → 模型训练 → 评估 → 部署。
+    </p>
+
+    <h2>4.2 泛化问题</h2>
+    <p>
+        <strong>泛化</strong>是模型在“新数据”上的表现。过拟合=训练集好但测试集差。解决思路：
+    </p>
+    <ul>
+        <li>增加数据量或数据增强（如光谱噪声扰动）</li>
+        <li>正则化（如 $\ell_2$ 正则）</li>
+        <li>控制模型复杂度（如限制树深度、网络层数）</li>
+        <li>交叉验证</li>
+    </ul>
+    <div class="note">
+        物理场景中“泛化失败”常表现为：模型对新仪器数据或新天区数据完全失效。
+    </div>
+
+    <h2>4.3 线性模型</h2>
+    <p>
+        线性模型是最基础的预测工具：
+        $$
+        \hat{y} = w^T x + b
+        $$
+        例如用一组观测特征（亮度、颜色指数）估计恒星温度。训练通常通过最小化均方误差：
+        $$
+        \min_w \sum_i (y_i - w^T x_i)^2 + \lambda \|w\|_2^2
+        $$
+    </p>
+
+    <h2>4.4 支持向量机 (SVM)</h2>
+    <p>
+        SVM 的核心思想：最大化分类间隔。线性可分时，寻找“最宽”的分离超平面；不可分时用核函数映射到高维：
+        $$
+        K(x_i, x_j) = \phi(x_i)^T \phi(x_j)
+        $$
+        在天文分类（如恒星/星系）中，SVM 常用于中小数据集。
+    </p>
+
+    <h2>4.5 决策树</h2>
+    <p>
+        决策树通过“按特征分裂”构建预测规则。优点是可解释性强。常用指标：信息增益、基尼指数。
+    </p>
+    <p>
+        缺点是容易过拟合，因此常与集成方法结合使用。
+    </p>
+
+    <h2>4.6 集成算法</h2>
+    <p>
+        集成学习通过组合多个模型提升性能：
+    </p>
+    <ul>
+        <li><strong>随机森林</strong>：多棵决策树投票</li>
+        <li><strong>梯度提升树</strong>：逐步拟合残差（如 XGBoost）</li>
+    </ul>
+    <p>在天体分类、光变曲线预测中非常常用。</p>
+
+    <h2>4.7 人工神经网络</h2>
+    <p>
+        神经网络通过层层非线性变换建模复杂关系：
+        $$
+        h = \sigma(Wx + b), \quad \hat{y} = \sigma(W' h + b')
+        $$
+    </p>
+    <h3>4.7.1 人工神经网络（一）</h3>
+    <p>
+        基础概念：感知机、激活函数（ReLU、Sigmoid）、反向传播。
+    </p>
+    <h3>4.7.2 人工神经网络（二）</h3>
+    <p>
+        深层网络结构、过拟合问题与 Dropout、BatchNorm 等技巧。
+    </p>
+
+    <h2>4.8 回归算法</h2>
+    <p>
+        回归用于预测连续变量：
+    </p>
+    <ul>
+        <li>线性回归</li>
+        <li>岭回归 / Lasso</li>
+        <li>高斯过程回归（天文学中常用于光变曲线拟合）</li>
+    </ul>
+
+    <h2>4.9 聚类算法</h2>
+    <p>
+        聚类用于发现数据内在结构：
+    </p>
+    <ul>
+        <li>K-means</li>
+        <li>层次聚类</li>
+        <li>DBSCAN（适合发现不规则形状星团）</li>
+    </ul>
+
+    <h2>4.10 降维算法</h2>
+    <p>
+        降维用于可视化与特征压缩：
+    </p>
+    <ul>
+        <li>PCA（主成分分析）</li>
+        <li>t-SNE / UMAP（非线性可视化）</li>
+    </ul>
+
+    <h2>4.11 卷积神经网络 (CNN)</h2>
+    <p>
+        CNN 擅长图像数据处理，核心是卷积与池化。天文学常用于：
+    </p>
+    <ul>
+        <li>星系形态分类</li>
+        <li>引力透镜识别</li>
+        <li>天文图像去噪</li>
+    </ul>
+    <p>
+        基本结构：卷积层 → 激活函数 → 池化层 → 全连接层。
+    </p>
+
+    <hr>
+    <p><strong>总结</strong>：机器学习的关键在于“以数据逼近规律”。物理与天文学数据常噪声大、维度高、分布复杂，因此需要合适的算法和严格的泛化评估。理解本章内容后，你就能搭建起机器学习的基本知识框架。</p>
+</div>
+</body>
+</html>
