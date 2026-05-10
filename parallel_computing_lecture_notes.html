@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>并行计算入门讲义</title>
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", "Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif;
+            line-height: 1.9;
+            margin: 20px;
+            max-width: 980px;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        h1, h2, h3, h4 {
+            color: #2c3e50;
+            border-bottom: 1px solid #bdc3c7;
+            padding-bottom: 10px;
+        }
+        .container {
+            background: white;
+            padding: 20px 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        code {
+            background: #ecf0f1;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+        ul, ol { padding-left: 20px; }
+        .concept {
+            background: #fff8e6;
+            border-left: 4px solid #f5a623;
+            padding: 10px 15px;
+            margin: 12px 0;
+        }
+        .example {
+            background: #f0fff4;
+            border-left: 4px solid #2ecc71;
+            padding: 10px 15px;
+            margin: 12px 0;
+        }
+        pre {
+            background: #f6f8fa;
+            padding: 12px;
+            border-radius: 6px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>第五章 并行计算入门</h1>
+    <p>本章面向零基础学习者，详细解释并行计算的核心概念，并配有直观例题分析，帮助你快速理解“为什么要并行、如何并行、常见工具和注意事项”。</p>
+
+    <h2>5.1 并行运算概念</h2>
+    <p>并行计算的目标是<strong>把一个大任务拆分成多个小任务，同时执行</strong>，从而缩短总时间。</p>
+    <div class="concept">
+        <strong>关键概念：</strong>
+        <ul>
+            <li><strong>串行计算</strong>：任务一个接一个做。</li>
+            <li><strong>并行计算</strong>：任务被拆成多个部分，同时做。</li>
+            <li><strong>加速比</strong>：并行后时间缩短的倍数。$S = T_{serial}/T_{parallel}$</li>
+            <li><strong>效率</strong>：$E = S / P$，其中 $P$ 是使用的处理器数。</li>
+        </ul>
+    </div>
+    <div class="example">
+        <strong>例题：</strong> 如果单核执行需要 100 秒，4 核并行后耗时 30 秒，加速比 $S=100/30=3.33$，效率 $E=3.33/4=0.83$。
+    </div>
+
+    <h2>5.2 多线程并行 OpenMP 基本用法</h2>
+    <p>OpenMP 是一种共享内存并行编程工具，适用于多核 CPU。</p>
+    <div class="concept">
+        <strong>核心思想：</strong> 用编译指令告诉编译器“这段循环可以并行”。
+    </div>
+    <pre><code>#pragma omp parallel for
+for (int i = 0; i &lt; N; i++) {
+    a[i] = b[i] + c[i];
+}</code></pre>
+    <div class="example">
+        <strong>例题：</strong> 给定向量加法，使用 OpenMP 并行化循环可显著加速，适合 N 很大的情况。
+    </div>
+
+    <h2>5.3 多线程并行 OpenMP 注意问题</h2>
+    <div class="concept">
+        <strong>常见问题：</strong>
+        <ul>
+            <li><strong>竞态条件</strong>：多个线程同时写同一个变量，结果不确定。</li>
+            <li><strong>临界区</strong>：需要加锁保护共享资源。</li>
+            <li><strong>负载不均</strong>：任务分配不均导致部分线程空闲。</li>
+        </ul>
+    </div>
+    <div class="example">
+        <strong>例题：</strong> 计算总和时，如果多个线程直接累加同一变量会出错，应使用 <code>reduction</code>。
+    </div>
+
+    <h2>5.4 多进程并行 MPI 基本概念</h2>
+    <p>MPI 适用于分布式内存环境（多台计算机或集群）。</p>
+    <div class="concept">
+        <strong>核心概念：</strong>
+        <ul>
+            <li><strong>进程</strong>：独立运行的程序实例。</li>
+            <li><strong>通信</strong>：进程之间通过消息传递交换数据。</li>
+            <li><strong>Rank</strong>：每个进程的编号。</li>
+        </ul>
+    </div>
+    <div class="example">
+        <strong>例题：</strong> 把大矩阵分给多个进程，每个进程处理一块，再汇总结果。</n    </div>
+
+    <h2>5.5 多进程并行 MPI 通信方法</h2>
+    <div class="concept">
+        <strong>常用通信：</strong>
+        <ul>
+            <li><strong>点对点通信</strong>：Send/Recv。</li>
+            <li><strong>集合通信</strong>：Broadcast、Reduce、Scatter、Gather。</li>
+        </ul>
+    </div>
+    <div class="example">
+        <strong>例题：</strong> 多个进程计算局部求和，使用 <code>MPI_Reduce</code> 汇总得到全局结果。
+    </div>
+
+    <h2>5.6 使用加速硬件 GPU</h2>
+    <p>GPU 适合大规模并行计算（例如矩阵运算、图像处理、深度学习）。</p>
+    <div class="concept">
+        <strong>概念要点：</strong>
+        <ul>
+            <li><strong>SIMT</strong>：单指令多线程，GPU 的运行模式。</li>
+            <li><strong>线程块</strong>：GPU 线程的组织方式。</li>
+            <li><strong>内存带宽</strong>：GPU 性能关键瓶颈。</li>
+        </ul>
+    </div>
+    <div class="example">
+        <strong>例题：</strong> 用 GPU 加速矩阵乘法通常比 CPU 快数十倍，但需要关注内存传输开销。
+    </div>
+
+    <h2>5.7 SIMD 指令集优化</h2>
+    <p>SIMD（Single Instruction Multiple Data）是一种 CPU 向量化技术，一条指令可同时处理多个数据。</p>
+    <div class="concept">
+        <strong>概念解释：</strong>
+        <ul>
+            <li><strong>向量寄存器</strong>：一次存多个数据。</li>
+            <li><strong>向量化</strong>：循环自动转换成 SIMD 指令。</li>
+        </ul>
+    </div>
+    <div class="example">
+        <strong>例题：</strong> 对一个数组执行加法，SIMD 可以一次处理 4 或 8 个元素，从而提升吞吐。
+    </div>
+
+    <hr>
+    <p><strong>总结</strong>：并行计算的本质是“时间换空间”，通过更多计算资源换取更短时间。OpenMP 适合共享内存，MPI 适合集群，GPU 擅长大规模并行，SIMD 提升 CPU 单核吞吐。理解这些概念后，你就能根据任务规模选择合适的并行工具。</p>
+</div>
+</body>
+</html>
